@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Login{% endblock %}
+
+{% block content %}
+<section class="login-section">
+    <h2>Patient Login</h2>
+    
+    {% if not session.get('otp_sent') %}
+        <!-- Form for phone number submission -->
+        <form method="POST" action="{{ url_for('main.patient_login') }}">
+            {{ phone_form.hidden_tag() }}
+            <div>
+                <label for="phone_number">{{ phone_form.phone_number.label }}</label>
+                {{ phone_form.phone_number(size=32) }}
+            </div>
+            <button type="submit">Get Code</button>
+        </form>
+    {% else %}
+        <!-- Form for OTP submission -->
+        <form method="POST" action="{{ url_for('main.patient_login') }}">
+            {{ otp_form.hidden_tag() }}
+            <div>
+                <label for="otp_code">Enter OTP Code:</label>
+                {{ otp_form.otp_code(size=6) }}
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    {% endif %}
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</section>
+{% endblock %}

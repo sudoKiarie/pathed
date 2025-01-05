@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard{% endblock %}
+
+{% block content %}
+    <section class="dashboard-section">
+        <h2>Welcome, {{ user.name }}</h2>
+        <h3>Your Upcoming Appointments</h3>
+        <!-- Display appointments dynamically here -->
+        <ul>
+            <li>Appointment 1: 10th Oct, 2024 at 10:00 AM</li>
+            <li>Appointment 2: 15th Oct, 2024 at 12:00 PM</li>
+        </ul>
+    </section>
+{% endblock %}

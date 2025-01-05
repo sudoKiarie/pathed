@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment{% endblock %}
+
+{% block content %}
+    <section id="appointment-section">
+        <h2>Book Appointment</h2>
+        {{ form.hidden_tag() }}
+        <form id="appointment-form" method="POST">
+            <div class="form-group">
+                <label for="appointment-date">Appointment Date:</label>
+                <input type="date" id="appointment-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="appointment-time">Appointment Time:</label>
+                <input type="time" id="appointment-time" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Chat Section Hidden Initially -->
+    <section class="chat-section hidden" id="chat-section">
+        <h2>Symptom Chat</h2>
+        <div id="chat-container">
+            <div id="chat-history"></div>
+        </div>
+        <form id="chat-form" class="hidden" method="POST">
+            <div class="form-group">
+                <input type="text" id="user-input" class="form-control" placeholder="Describe your symptoms..." autocomplete="off">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Send</button>
+            </div>
+        </form>
+        <button id="submit-diagnosis" class="btn btn-success hidden">Submit</button>
+    </section>
+
+    <!-- Diagnosis Section Hidden Initially -->
+    <section class="diagnosis-section hidden" id="diagnosis-section">
+        <h2>Diagnosis Information</h2>
+        <p id="diagnosis-details"></p>
+        <button id="confirm-btn" class="btn btn-success">OK</button>
+    </section>
+
+    <script>
+        document.getElementById('appointment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            // Capture date and time
+            const appointmentDate = document.getElementById('appointment-date').value;
+            const appointmentTime = document.getElementById('appointment-time').value;
+    
+            if (appointmentDate && appointmentTime) {
+                document.getElementById('appointment-section').classList.add('hidden');
+                document.getElementById('chat-section').classList.remove('hidden');
+                document.getElementById('chat-form').classList.remove('hidden');
+    
+                // Save the appointment date and time for later
+                sessionStorage.setItem('appointmentDate', appointmentDate);
+                sessionStorage.setItem('appointmentTime', appointmentTime);
+            }
+        });
+    
+        // Handle chat submission
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+    
+            // Add user's message to chat history
+            const chatHistory = document.getElementById('chat-history');
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('chat-message', 'user-message');
+            userMessage.textContent = userInput;
+            chatHistory.appendChild(userMessage);
+    
+            // Get CSRF token from the form
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+    
+            // Send message to the Flask backend
+            fetch('{{ url_for("main.chat_with_ai") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add AI's response to chat history
+                const aiMessage = document.createElement('div');
+                aiMessage.classList.add('chat-message', 'ai-message');
+                aiMessage.textContent = data.response;
+                chatHistory.appendChild(aiMessage);
+    
+                if (data.response.includes("next relevant question")) {
+                    document.getElementById('submit-diagnosis').classList.remove('hidden');
+                }
+    
+                // Scroll to the bottom of the chat
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            });
+    
+            // Clear input
+            document.getElementById('user-input').value = '';
+        });
+    
+        // Handle diagnosis submission
+        document.getElementById('submit-diagnosis').addEventListener('click', function() {
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+    
+            fetch('{{ url_for("main.submit_diagnosis") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('chat-section').classList.add('hidden');
+                document.getElementById('diagnosis-section').classList.remove('hidden');
+    
+                const appointmentDate = sessionStorage.getItem('appointmentDate');
+                const appointmentTime = sessionStorage.getItem('appointmentTime');
+    
+                document.getElementById('diagnosis-details').textContent = `${data.diagnosis}. Your appointment is booked for ${appointmentDate} at ${appointmentTime}.`;
+            });
+        });
+    
+        document.getElementById('confirm-btn').addEventListener('click', function() {
+            window.location.href = '{{ url_for("main.patient_dashboard") }}';
+        });
+    </script>    
+{% endblock %}

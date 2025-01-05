@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+    <section class="dashboard-section">
+        <h2>Welcome, Dr. {{ user.name }}</h2>
+        <h3>Your Scheduled Appointments</h3>
+        <!-- Display appointments dynamically here -->
+        <ul>
+            <li>Appointment with Patient A: 12th Oct, 2024 at 9:00 AM</li>
+            <li>Appointment with Patient B: 14th Oct, 2024 at 11:00 AM</li>
+        </ul>
+    </section>
+{% endblock %}

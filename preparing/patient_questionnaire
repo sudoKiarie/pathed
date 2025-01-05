@@ -1,0 +1,36 @@
+# Simple patient consultation questionnaire
+
+def patient_questionnaire():
+    print("Welcome to the patient consultation form. Please answer the following questions openly.")
+    
+    # Open-ended questions to gather symptoms and details
+    questions = [
+        "1. What symptoms are you experiencing today? Please describe in as much detail as possible.",
+        "2. How long have you been experiencing these symptoms?",
+        "3. Have you noticed any patterns or triggers that make your symptoms worse or better?",
+        "4. Have you tried any treatments or remedies? If so, did they help?",
+        "5. Are there any other symptoms or concerns you’d like to mention?",
+        "6. Do you have any medical conditions, allergies, or recent health changes we should know about?",
+        "7. How would you describe your current pain level, if any? (Use a scale of 0-10, with 10 being the worst pain.)",
+        "8. Have your symptoms affected your daily life or activities in any way?"
+    ]
+    
+    # Dictionary to store patient responses
+    patient_responses = {}
+
+    for question in questions:
+        # Collect patient responses for each question
+        response = input(question + "\n> ")
+        patient_responses[question] = response
+
+    # Print the collected responses for review (or store them in a database in real-world usage)
+    print("\nThank you for your responses. Here's what you've shared:")
+    for question, answer in patient_responses.items():
+        print(f"{question} \nResponse: {answer}\n")
+    
+    # Optionally, return the responses for further processing or storage
+    return patient_responses
+
+# Run the consultation form
+if __name__ == "__main__":
+    patient_questionnaire()

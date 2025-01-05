@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Login{% endblock %}
+
+{% block content %}
+    <section class="login-section">
+        <h2>Doctor Login</h2>
+        <form method="POST" action="{{ url_for('main.doctor_login') }}">
+            {{ form.hidden_tag() }}
+            <label for="email">Email:</label>
+            {{ form.email(size=32, class_="form-control") }}
+            <label for="password">Password:</label>
+            {{ form.password(size=32, class_="form-control") }}
+            <button type="submit" class="btn">Login</button>
+        </form>
+    </section>
+{% endblock %}
